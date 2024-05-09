@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
@@ -22,10 +23,21 @@ class Task
     private ?int $id = null;
 
     #[ORM\Column(length: 150, nullable: false)]
+    #[Assert\NotBlank(message: "Nazwa nie może być pusta")]
+    #[Assert\Length(
+        min: 2,
+        max: 150,
+        minMessage: "Minimalny limit znaków na nazwę: {{ limit }}",
+        maxMessage: "Maksymalny limit znaków na nazwę: {{ limit }}"
+    )]
     private string $name;
 
     #[Gedmo\SortablePosition]
     #[ORM\Column(nullable: false)]
+    #[Assert\LessThanOrEqual(
+        value: 10,
+        message: "Maksymalna pozycja na liście: {{ compared_value }}"
+    )]
     private int $position;
 
     public function getId(): ?int
