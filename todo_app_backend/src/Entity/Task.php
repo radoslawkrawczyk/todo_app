@@ -12,7 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
-use App\Controller\UpdateTaskPositionsController;
+use App\Controller\TaskPositionUpdateController;
 
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
@@ -24,7 +24,7 @@ use App\Controller\UpdateTaskPositionsController;
         new Post(
             name: 'update_positions',
             uriTemplate: '/tasks/update-positions',
-            controller: UpdateTaskPositionsController::class
+            controller: TaskPositionUpdateController::class
         ),
         new Put(),
         new Delete()
