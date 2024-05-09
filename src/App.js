@@ -1,16 +1,20 @@
-
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
 import Task from './components/Task';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-import { useEffect, useState } from 'react';
-import { fetchTasks, addTask, updateTaskPosition } from './features/tasksSlice';
+import React, { useEffect, useState } from 'react';
+import { fetchTasks, addTask, updateTaskPosition, clearError } from './features/tasksSlice';
 import { useDispatch, useSelector } from 'react-redux';
+
+import TaskModal from './components/TaskModal';
 
 function App() {
 
+  const [showModal, setShowModal] = useState(false);
+
   const dispatch = useDispatch();
   const { tasksList, isLoaded } = useSelector((state) => state.tasks);
+  const { errorMessage } = useSelector(state => state.tasks);
 
   useEffect(() => {
     dispatch(fetchTasks());
@@ -28,7 +32,7 @@ function App() {
     dispatch(updateTaskPosition(newTasksList));
   };
 
-  const handleAddTask = () => dispatch(addTask());
+  const handleAddTask = name => dispatch(addTask(name));
 
   return (
     <>
@@ -40,8 +44,13 @@ function App() {
                 <Card.Body>
                   <Card.Title>TODO App</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted mt-3">
-                    <Button type='button' variant='success' size='sm' onClick={handleAddTask} disabled={!isLoaded}>Dodaj</Button> <br />
+                    <Button type='button' variant='success' size='sm' onClick={() => setShowModal(!showModal)} disabled={!isLoaded}>Dodaj</Button> <br />
                     <small>Kliknij dwukrotnie zadanie, aby zmienić jego nazwę</small>
+                    {errorMessage && (
+                      <Alert variant="danger" onClose={() => dispatch(clearError())} dismissible>
+                        {errorMessage}
+                      </Alert>
+                    )}
                   </Card.Subtitle>
                   {isLoaded ? <Droppable droppableId="tasks">
                     {(provided) => (
@@ -64,9 +73,12 @@ function App() {
             </Col>
           </Row>
         </Container>
-      </DragDropContext>
+      </DragDropContext >
+
+      <TaskModal visible={showModal} setShowModal={setShowModal} handleAddTask={handleAddTask} />
     </>
   );
 }
+
 
 export default App;

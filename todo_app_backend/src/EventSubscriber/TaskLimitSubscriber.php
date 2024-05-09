@@ -35,10 +35,5 @@ class TaskLimitSubscriber implements EventSubscriberInterface
         if (!$task instanceof Task || Request::METHOD_POST !== $method) {
             return;
         }
-
-        $taskCount = $this->entityManager->getRepository(Task::class)->count([]);
-        if ($taskCount >= 10) {
-            throw new \Exception('Nie można dodać więcej niż 10 zadań.', Response::HTTP_BAD_REQUEST);
-        }
     }
 }

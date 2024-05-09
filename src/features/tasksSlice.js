@@ -20,16 +20,27 @@ export const updateTaskPosition = createAsyncThunk(
     }
 );
 
-export const addTask = createAsyncThunk('tasks/addTask', async () => {
-    const response = await axios.post(baseUrl, {
-        name: 'Nowe zadanie...',
-        position: 1,
+
+export const addTask = createAsyncThunk('tasks/addTask', async (taskName, { getState }) => {
+    const state = getState();
+    const { tasksList } = state.tasks;
+
+    const highestPosition = tasksList.reduce((max, task) => Math.max(max, task.position), 0);
+    const newTaskPosition = highestPosition + 1;
+
+    const response = await axios.post(`${baseUrl}`, {
+        name: taskName || 'Nowe zadanie...',
+        position: newTaskPosition,
     });
+
     return response.data;
 });
 
-export const deleteTask = createAsyncThunk('tasks/deleteTask', async (id) => {
+export const deleteTask = createAsyncThunk('tasks/deleteTask', async (id, { dispatch, getState }) => {
     await axios.delete(`${baseUrl}/${id}`);
+    const { tasksList } = getState().tasks;
+    const updatedTasks = tasksList.filter(task => task.id !== id);
+    dispatch(updateTaskPosition(updatedTasks));
     return id;
 });
 
@@ -47,8 +58,13 @@ const tasksSlice = createSlice({
         tasksList: [],
         isLoaded: true,
         error: null,
+        errorMessage: null,
     },
-    reducers: {},
+    reducers: {
+        clearError: (state) => {
+            state.errorMessage = null;
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchTasks.pending, (state) => {
@@ -91,8 +107,18 @@ const tasksSlice = createSlice({
                     task.name = name;
                 }
                 state.isLoaded = true;
+            })
+            .addCase(addTask.rejected, (state, action) => {
+                console.log('Rejected action:', action);
+                if (action.payload && action.payload.data) {
+                    state.errorMessage = action.payload.data.detail;
+                } else {
+                    state.errorMessage = action.error.message;
+                }
+                state.isLoaded = true;
             });
     },
 });
+export const { clearError } = tasksSlice.actions;
 
 export default tasksSlice.reducer;
