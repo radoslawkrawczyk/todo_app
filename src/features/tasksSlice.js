@@ -21,17 +21,27 @@ export const updateTaskPosition = createAsyncThunk(
 );
 
 
-export const addTask = createAsyncThunk('tasks/addTask', async (taskName, { getState }) => {
+export const addTask = createAsyncThunk('tasks/addTask', async (taskName, { getState, rejectWithValue }) => {
     const state = getState();
     const { tasksList } = state.tasks;
 
     const highestPosition = tasksList.reduce((max, task) => Math.max(max, task.position), 0);
     const newTaskPosition = highestPosition + 1;
 
-    const response = await axios.post(`${baseUrl}`, {
-        name: taskName || 'Nowe zadanie...',
-        position: newTaskPosition,
-    });
+    let response = {
+        data: {}
+    }
+    try {
+        const response = await axios.post(`${baseUrl}`, {
+            name: taskName || 'Nowe zadanie...',
+            position: newTaskPosition,
+        });
+    } catch (error) {
+        if (!error.response) {
+            throw error;
+        }
+        return rejectWithValue(error.response.data);
+    }
 
     return response.data;
 });
@@ -109,9 +119,10 @@ const tasksSlice = createSlice({
                 state.isLoaded = true;
             })
             .addCase(addTask.rejected, (state, action) => {
-                state.errorMessage = action.error.message;
-                if (action.error.response && action.error.response.data && action.error.response.data.detail) {
-                    state.errorMessage = action.error.response.data.detail;
+                if (action.payload) {
+                    state.errorMessage = action.payload.detail;
+                } else {
+                    state.errorMessage = action.error.message;
                 }
                 state.isLoaded = true;
             });
