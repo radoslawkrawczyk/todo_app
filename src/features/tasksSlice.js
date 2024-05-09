@@ -47,7 +47,6 @@ const tasksSlice = createSlice({
         tasksList: [],
         isLoaded: true,
         error: null,
-        updatingPositions: false,
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -82,12 +81,16 @@ const tasksSlice = createSlice({
                 );
                 state.isLoaded = true;
             })
+            .addCase(updateTask.pending, (state, action) => {
+                state.isLoaded = false;
+            })
             .addCase(updateTask.fulfilled, (state, action) => {
                 const { id, name } = action.payload;
                 const task = state.tasksList.find((task) => task.id === id);
                 if (task) {
                     task.name = name;
                 }
+                state.isLoaded = true;
             });
     },
 });
