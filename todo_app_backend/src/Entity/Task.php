@@ -5,10 +5,13 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    order: ["position" => "ASC"]
+)]
 
 
 class Task
@@ -21,6 +24,7 @@ class Task
     #[ORM\Column(length: 150, nullable: false)]
     private string $name;
 
+    #[Gedmo\SortablePosition]
     #[ORM\Column(nullable: false)]
     private int $position;
 
