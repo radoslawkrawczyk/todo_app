@@ -12,8 +12,16 @@ use Doctrine\ORM\EntityManagerInterface;
 #[AsController]
 class UpdateTaskPositionsController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
+        $this->entityManager = $entityManager;
+    }
+
+    public function __invoke(Request $request): Response
+    {
+        return $this->updatePositions($request);
     }
 
     public function updatePositions(Request $request): Response

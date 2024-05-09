@@ -3,9 +3,3 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
-
-update_task_positions:
-    path: /api/tasks/update-positions
-    methods: ['POST']
-    defaults:
-        _controller: App\Controller\UpdateTaskPositionsController::updatePositions

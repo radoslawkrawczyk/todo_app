@@ -3,15 +3,32 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
+use App\Controller\UpdateTaskPositionsController;
 
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
 #[ApiResource(
-    order: ["position" => "ASC"]
+    operations: [
+        new GetCollection(order: ["position" => "ASC"]),
+        new Get(),
+        new Post(),
+        new Post(
+            name: 'update_positions',
+            uriTemplate: '/tasks/update-positions',
+            controller: UpdateTaskPositionsController::class
+        ),
+        new Put(),
+        new Delete()
+    ]
 )]
 
 
