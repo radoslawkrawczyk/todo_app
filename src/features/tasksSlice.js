@@ -109,11 +109,9 @@ const tasksSlice = createSlice({
                 state.isLoaded = true;
             })
             .addCase(addTask.rejected, (state, action) => {
-                console.log('Rejected action:', action);
-                if (action.payload && action.payload.data) {
-                    state.errorMessage = action.payload.data.detail;
-                } else {
-                    state.errorMessage = action.error.message;
+                state.errorMessage = action.error.message;
+                if (action.error.response && action.error.response.data && action.error.response.data.detail) {
+                    state.errorMessage = action.error.response.data.detail;
                 }
                 state.isLoaded = true;
             });
